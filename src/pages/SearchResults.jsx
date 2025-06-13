@@ -1,611 +1,4 @@
 
-// import React, { useState, useEffect } from 'react';
-
-// import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-// import Footer from '../component/Footer';
-// import Navbar from '../component/Navbar';
-// import { motion, AnimatePresence } from 'framer-motion';
-// import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
-// const SearchResults = () => {
-//   const { state } = useLocation();
-//   const { searchParams, homeJobData } = state || { searchParams: {}, homeJobData: null };
-//   const [jobs, setJobs] = useState([]);
-//   const [suggestedJobs, setSuggestedJobs] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState('');
-//   const [selectedJob, setSelectedJob] = useState(null);
-//   const [filters, setFilters] = useState({
-//     datePosted: 'all',
-//     salary: 1.5,
-//     workMode: { home: false, office: false, field: false },
-//     workType: { fullTime: false, partTime: false },
-//   });
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [itemsPerPage] = useState(10);
-// const navigate = useNavigate()
-//   useEffect(() => {
-//     const fetchJobs = async () => {
-//       try {
-//         setLoading(true);
-//         setError('');
-//         // Use the search API instead of the generic jobs API to align with search params
-//         const response = await axios.get('http://localhost:5006/api/jobs/search', {
-//           params: {
-//             designation: searchParams?.designation || '',
-//             experience: searchParams?.experience || '',
-//             location: searchParams?.location || '',
-//           },
-//         });
-//         let allJobs = response.data || [];
-//         console.log('All Fetched Jobs:', allJobs);
-
-//         if (homeJobData) {
-//           if (!homeJobData?.designation || !homeJobData?.experience || !homeJobData?.location) {
-//             console.warn('homeJobData is incomplete:', homeJobData);
-//           }
-//           allJobs = [homeJobData, ...allJobs];
-//         }
-
-//         setJobs(allJobs);
-//         console.log('Filtered Jobs:', allJobs);
-//       } catch (err) {
-//         console.error('Error fetching jobs:', err);
-//         setError('Failed to load jobs. Please try again.');
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     const fetchSuggestedJobs = async () => {
-//       try {
-//         const response = await axios.get('http://localhost:5006/api/jobs/suggested', {
-//           params: {
-//             location: searchParams?.location || '',
-//             designation: searchParams?.designation || '',
-//           },
-//         });
-//         setSuggestedJobs(response.data || []);
-//       } catch (err) {
-//         console.error('Error fetching suggested jobs:', err);
-//       }
-//     };
-
-//     fetchJobs();
-//     fetchSuggestedJobs();
-//   }, [searchParams, homeJobData]);
-//   const handleApply = () => {
-//     toast.success('Applied successfully!');
-
-//     // Delay navigation so toast is visible
-//     setTimeout(() => {
-//       navigate('/');
-//     }, 2000); // 1.5 seconds delay
-//   };
-
-//   const fetchJobDetails = async (id) => {
-//     try {
-//       setSelectedJob(null);
-//       const response = await axios.get(`http://localhost:5006/api/jobs/${id}`);
-//       setSelectedJob(response.data.data);
-//     } catch (error) {
-//       console.error('Error fetching job details:', error);
-//       setError('Failed to load job details. Please try again.');
-//     }
-//   };
-
-//   const handleFilterChange = (filterType, value) => {
-//     setFilters((prev) => ({
-//       ...prev,
-//       [filterType]: value,
-//     }));
-//     setCurrentPage(1);
-//   };
-
-//   const filteredJobsWithFilters = jobs.filter((job) => {
-//     const postedDate = new Date(job.postedAt);
-//     const today = new Date();
-//     const diffDays = Math.ceil((today - postedDate) / (1000 * 60 * 60 * 24));
-
-//     if (filters.datePosted === 'last24hours' && diffDays > 1) return false;
-//     if (filters.datePosted === 'last3days' && diffDays > 3) return false;
-//     if (filters.datePosted === 'last7days' && diffDays > 7) return false;
-
-//     // Parse salary range (e.g., "₹ 5-7 Lakhs P.A.") to get the minimum salary
-//     const salaryRange = job.salary?.match(/(\d+(\.\d+)?)-(\d+(\.\d+)?)/);
-//     const minSalary = salaryRange ? parseFloat(salaryRange[1]) : 0;
-//     if (minSalary < filters.salary) return false;
-
-//     if (filters.workMode.home && job.type !== 'Work from home') return false;
-//     if (filters.workMode.office && job.type !== 'Work from office') return false;
-//     if (filters.workMode.field && job.type !== 'Work from field') return false;
-
-//     if (filters.workType.fullTime && job.type !== 'Full-Time') return false;
-//     if (filters.workType.partTime && job.type !== 'Part-Time') return false;
-
-//     return true;
-//   });
-
-//   const totalPages = Math.ceil(filteredJobsWithFilters.length / itemsPerPage);
-//   const indexOfLastJob = currentPage * itemsPerPage;
-//   const indexOfFirstJob = indexOfLastJob - itemsPerPage;
-//   const currentJobs = filteredJobsWithFilters.slice(indexOfFirstJob, indexOfLastJob);
-
-//   const handlePageChange = (pageNumber) => {
-//     setCurrentPage(pageNumber);
-//     window.scrollTo({ top: 0, behavior: 'smooth' });
-//   };
-
-//   const calculateDaysAgo = (postedAt) => {
-//     const postedDate = new Date(postedAt);
-//     const today = new Date();
-//     const diffTime = Math.abs(today - postedDate);
-//     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-//     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-//   };
-
-//   return (
-//     <div>
-//       <div className="w-full mx-auto max-w-[1250px]">
-//         <Navbar />
-//         <div className="p-4">
-//           <div>
-//             <h1 className="text-2xl font-bold text-gray-800">
-//               {filteredJobsWithFilters.length} Explore and Find Latest Jobs
-//             </h1>
-//           </div>
-
-//           <div className="mt-5 flex gap-6">
-//             <div className="w-1/4 bg-white p-4 rounded-lg shadow-md">
-//               <div className="flex justify-between items-center mb-4">
-//                 <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
-//                 <button className="text-gray-500 hover:text-gray-700">
-//                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-//                   </svg>
-//                 </button>
-//               </div>
-
-//               <div className="mb-4">
-//                 <h3 className="text-lg font-semibold text-black Inter">Date posted</h3>
-//                 <div className="mt-2 space-y-2">
-//                   <label className="flex items-center">
-//                     <input
-//                       type="radio"
-//                       name="date-posted"
-//                       value="all"
-//                       checked={filters.datePosted === 'all'}
-//                       onChange={() => handleFilterChange('datePosted', 'all')}
-//                       className="mr-2 text-black"
-//                     />
-//                     <span className="text-sm text-gray-600">All</span>
-//                   </label>
-//                   <label className="flex items-center">
-//                     <input
-//                       type="radio"
-//                       name="date-posted"
-//                       value="last24hours"
-//                       checked={filters.datePosted === 'last24hours'}
-//                       onChange={() => handleFilterChange('datePosted', 'last24hours')}
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Last 24 hours</span>
-//                   </label>
-//                   <label className="flex items-center">
-//                     <input
-//                       type="radio"
-//                       name="date-posted"
-//                       value="last3days"
-//                       checked={filters.datePosted === 'last3days'}
-//                       onChange={() => handleFilterChange('datePosted', 'last3days')}
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Last 3 days</span>
-//                   </label>
-//                   <label className="flex items-center">
-//                     <input
-//                       type="radio"
-//                       name="date-posted"
-//                       value="last7days"
-//                       checked={filters.datePosted === 'last7days'}
-//                       onChange={() => handleFilterChange('datePosted', 'last7days')}
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Last 7 days</span>
-//                   </label>
-//                 </div>
-//               </div>
-
-//               <div className="mb-4">
-//                 <h3 className="text-lg font-semibold text-black Inter">Salary</h3>
-//                 <div className="mt-2">
-//                   <label className="block text-sm text-gray-600 mb-1">Minimum yearly salary</label>
-//                   <div className="flex items-center gap-2">
-//                     <span className="text-sm text-gray-600">₹0</span>
-//                     <input
-//                       type="range"
-//                       min="0"
-//                       max="15"
-//                       step="0.5"
-//                       value={filters.salary}
-//                       onChange={(e) => handleFilterChange('salary', parseFloat(e.target.value))}
-//                       className="w-full"
-//                     />
-//                     <span className="text-sm text-gray-600">{filters.salary} Lakhs</span>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               <div className="mb-4">
-//                 <h3 className="text-lg font-semibold text-black Inter">Work Mode</h3>
-//                 <div className="mt-2 space-y-2">
-//                   <label className="flex items-center">
-//                     <input
-//                       type="checkbox"
-//                       checked={filters.workMode.home}
-//                       onChange={() =>
-//                         handleFilterChange('workMode', { ...filters.workMode, home: !filters.workMode.home })
-//                       }
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Work from home</span>
-//                   </label>
-//                   <label className="flex items-center">
-//                     <input
-//                       type="checkbox"
-//                       checked={filters.workMode.office}
-//                       onChange={() =>
-//                         handleFilterChange('workMode', { ...filters.workMode, office: !filters.workMode.office })
-//                       }
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Work from office</span>
-//                   </label>
-//                   <label className="flex items-center">
-//                     <input
-//                       type="checkbox"
-//                       checked={filters.workMode.field}
-//                       onChange={() =>
-//                         handleFilterChange('workMode', { ...filters.workMode, field: !filters.workMode.field })
-//                       }
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Work from field</span>
-//                   </label>
-//                 </div>
-//               </div>
-
-//               <div>
-//                 <h3 className="text-lg font-semibold text-black Inter">Work Type</h3>
-//                 <div className="mt-2 space-y-2">
-//                   <label className="flex items-center">
-//                     <input
-//                       type="checkbox"
-//                       checked={filters.workType.fullTime}
-//                       onChange={() =>
-//                         handleFilterChange('workType', { ...filters.workType, fullTime: !filters.workType.fullTime })
-//                       }
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Full-Time</span>
-//                   </label>
-//                   <label className="flex items-center">
-//                     <input
-//                       type="checkbox"
-//                       checked={filters.workType.partTime}
-//                       onChange={() =>
-//                         handleFilterChange('workType', { ...filters.workType, partTime: !filters.workType.partTime })
-//                       }
-//                       className="mr-2"
-//                     />
-//                     <span className="text-sm text-gray-600">Part-Time</span>
-//                   </label>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="flex-1">
-//               {loading ? (
-//                 <p className="text-gray-600">Loading...</p>
-//               ) : error ? (
-//                 <p className="text-red-600">{error}</p>
-//               ) : filteredJobsWithFilters.length === 0 ? (
-//                 <p className="text-gray-600">No jobs found.</p>
-//               ) : (
-//                 <>
-//                   <div className="grid gap-4">
-//                     {currentJobs.map((job) => (
-//                       <div
-//                         key={job.id} // Changed from _id to id to match mock data
-//                         className="p-4 bg-white shadow-md rounded-lg cursor-pointer hover:bg-gray-50"
-//                         onClick={() => fetchJobDetails(job.id)} // Changed from _id to id
-//                       >
-//                         <div className="flex items-center space-y-2 justify-between">
-//                           <div>
-//                             <h3 className="text-xl font-semibold text-black Inter">{job.designation}</h3> {/* Changed from title to designation */}
-//                             <p className="text-gray-600">{job.company}</p>
-//                           </div>
-//                           <img
-//                             src={job.img || 'https://via.placeholder.com/64'} // Fallback image if img is missing
-//                             alt={`${job.company} Logo`}
-//                             className="w-16 h-16 object-contain rounded"
-//                           />
-//                         </div>
-
-//                         <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-//                           <span className="flex items-center gap-1">
-//                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                               <path
-//                                 strokeLinecap="round"
-//                                 strokeLinejoin="round"
-//                                 strokeWidth="2"
-//                                 d="M17.657 16.243l-4.243-4.243m0 0L9.172 7.757M13.414 12H21m-9 9V13.414m0-4.828V3m-9 9h7.586"
-//                               />
-//                             </svg>
-//                             {job.location}
-//                           </span>
-//                           <span>₹{job.salary}</span> {/* Already matches mock data */}
-//                           <span className="flex items-center gap-1">
-//                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                               <path
-//                                 strokeLinecap="round"
-//                                 strokeLinejoin="round"
-//                                 strokeWidth="2"
-//                                 d="M17 20h5v-2a2 2 0 00-2-2h-1m-2 0H7a2 2 0 00-2 2v2h5m-2-8h8m-4 4v-8m-6 4h12"
-//                               />
-//                             </svg>
-//                             {job.experience}
-//                           </span>
-//                         </div>
-
-//                         <div className="mt-2 flex gap-2 text-sm text-gray-600">
-//                           {job.skills?.slice(0, 3).map((skill, index) => (
-//                             <span key={index} className="bg-gray-100 px-2 py-1 rounded">
-//                               {skill}
-//                             </span>
-//                           ))}
-//                         </div>
-
-//                         <p className="mt-2 text-sm text-gray-600">Posted: {calculateDaysAgo(job.postedAt)}</p>
-//                       </div>
-//                     ))}
-//                   </div>
-
-//                   {totalPages > 1 && (
-//                     <div className="mt-6 flex justify-center items-center gap-2">
-//                       <button
-//                         onClick={() => handlePageChange(currentPage - 1)}
-//                         disabled={currentPage === 1}
-//                         className={`px-3 py-1 rounded-md ${
-//                           currentPage === 1
-//                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-//                             : 'bg-blue-600 text-white hover:bg-blue-700'
-//                         }`}
-//                       >
-//                         Previous
-//                       </button>
-//                       {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-//                         <button
-//                           key={page}
-//                           onClick={() => handlePageChange(page)}
-//                           className={`px-3 py-1 rounded-md ${
-//                             currentPage === page
-//                               ? 'bg-blue-600 text-white'
-//                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-//                           }`}
-//                         >
-//                           {page}
-//                         </button>
-//                       ))}
-//                       <button
-//                         onClick={() => handlePageChange(currentPage + 1)}
-//                         disabled={currentPage === totalPages}
-//                         className={`px-3 py-1 rounded-md ${
-//                           currentPage === totalPages
-//                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-//                             : 'bg-blue-600 text-white hover:bg-blue-700'
-//                         }`}
-//                       >
-//                         Next
-//                       </button>
-//                     </div>
-//                   )}
-//                 </>
-//               )}
-//             </div>
-
-//             <div className="w-1/4">
-//               <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-//                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Know more about Freshers Jobs</h3>
-//                 <img
-//                   src="https://storage.googleapis.com/mumbai_apnatime_prod/jobs_page/TrackForDesktop.webp"
-//                   alt="Phone Mockup"
-//                   className="mt-4 w-full"
-//                 />
-//               </div>
-//             </div>
-//           </div>
-
-//           <AnimatePresence>
-//             {selectedJob && (
-//               <motion.div
-//                 initial={{ opacity: 0 }}
-//                 animate={{ opacity: 1 }}
-//                 exit={{ opacity: 0 }}
-//                 className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-//                 onClick={() => setSelectedJob(null)}
-//               >
-//                 <motion.div
-//                   initial={{ y: 50, opacity: 0 }}
-//                   animate={{ y: 0, opacity: 1 }}
-//                   exit={{ y: 50, opacity: 0 }}
-//                   transition={{ duration: 0.3 }}
-//                   className="bg-white p-6 rounded-lg shadow-lg max-w-7xl h-[700px] w-full overflow-y-auto"
-//                   onClick={(e) => e.stopPropagation()}
-//                 >
-//                   <div className="flex justify-between items-start mb-4">
-//                     <div>
-//                       <div className="flex items-center">
-//                         <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm mr-2">
-//                           {selectedJob.company?.slice(0, 6).toUpperCase()}
-//                         </span>
-//                         <h2 className="text-xl font-semibold">{selectedJob.designation}</h2> {/* Changed from title to designation */}
-//                       </div>
-//                       <p className="text-gray-600">{selectedJob.company}</p>
-//                       <div className="flex items-center gap-2 text-gray-500 text-sm">
-//                         <span className="flex items-center gap-1">
-//                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                             <path
-//                               strokeLinecap="round"
-//                               strokeLinejoin="round"
-//                               strokeWidth="2"
-//                               d="M17.657 16.243l-4.243-4.243m0 0L9.172 7.757M13.414 12H21m-9 9V13.414m0-4.828V3m-9 9h7.586"
-//                             />
-//                           </svg>
-//                           {selectedJob.location}
-//                         </span>
-//                         <span className="flex items-center gap-1">
-//                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                             <path
-//                               strokeLinecap="round"
-//                               strokeLinejoin="round"
-//                               strokeWidth="2"
-//                               d="M12 8c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm0 6c-2.21 0-4-1.79-4-4s1.79-4 4 4-1.79 4-4 4zm0 2c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z"
-//                             />
-//                           </svg>
-//                           ₹{selectedJob.salary}
-//                         </span>
-//                       </div>
-//                     </div>
-//                     <button className="text-gray-500 hover:text-gray-700" onClick={() => setSelectedJob(null)}>
-//                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-//                       </svg>
-//                     </button>
-//                   </div>
-
-//                   <div className="bg-gray-100 p-4 rounded-lg mb-4">
-//                     <div className="flex justify-between mb-2">
-//                       <div>
-//                         <p className="text-gray-600 text-sm">Fixed</p>
-//                         <p className="font-semibold">₹{selectedJob.salary}</p>
-//                       </div>
-//                       <div>
-//                         <p className="text-gray-600 text-sm">Earning Potential</p>
-//                         {/* Calculate earning potential as salary + 2 Lakhs */}
-//                         <p className="font-semibold">
-//                           ₹
-//                           {(() => {
-//                             const salaryRange = selectedJob.salary?.match(/(\d+(\.\d+)?)-(\d+(\.\d+)?)/);
-//                             const maxSalary = salaryRange ? parseFloat(salaryRange[3]) : parseFloat(selectedJob.salary) || 0;
-//                             return maxSalary + 2;
-//                           })()}{' '}
-//                           Lakhs P.A.
-//                         </p>
-//                       </div>
-//                     </div>
-//                     <div className="flex flex-wrap gap-2">
-//                       <span className="bg-white text-gray-700 px-2 py-1 rounded text-sm">{selectedJob.type}</span>
-//                       <span className="bg-white text-gray-700 px-2 py-1 rounded text-sm">{selectedJob.type}</span>
-//                       <span className="bg-white text-gray-700 px-2 py-1 rounded text-sm">
-//                         {selectedJob.experience === '0 years' ? 'Freshers only' : selectedJob.experience}
-//                       </span>
-//                       {selectedJob.skills?.slice(0, 1).map((skill, index) => (
-//                         <span key={index} className="bg-white text-gray-700 px-2 py-1 rounded text-sm">
-//                           {skill}
-//                         </span>
-//                       ))}
-//                     </div>
-//                   </div>
-
-//                   <div className="w-[470px] flex justify-between items-center mb-4">
-//                     <button      onClick={handleApply} className="bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 flex-1 mr-2">
-//                       Apply for job
-//                     </button>
-//                   </div>
-//  <ToastContainer position="top-center" autoClose={2000} />
-//                   <div className="mb-4">
-//                     <h3 className="text-lg font-semibold text-gray-800">Job highlights</h3>
-//                     <div className="flex gap-4 mt-2">
-//                       <span className="flex items-center text-orange-600 text-sm">
-//                         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                           <path
-//                             strokeLinecap="round"
-//                             strokeLinejoin="round"
-//                             strokeWidth="2"
-//                             d="M12 8c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm0 6c-2.21 0-4-1.79-4-4s1.79-4 4 4-1.79 4-4 4zm0 2c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z"
-//                           />
-//                         </svg>
-//                         Hiring
-//                       </span>
-//                       <span className="flex items-center text-blue-600 text-sm">
-//                         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24">
-//                           <path
-//                             strokeLinecap="round"
-//                             strokeLinejoin="round"
-//                             strokeWidth="2"
-//                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-//                           />
-//                         </svg>
-//                         {selectedJob.applicants || 0}+ applicants
-//                       </span>
-//                     </div>
-//                   </div>
-
-//                   <div className="p-4 bg-white shadow-md rounded-lg">
-//                     <div className="mb-4">
-//                       <h3 className="text-lg font-semibold text-gray-800">Role</h3>
-//                       <p className="text-gray-600 mt-2">{selectedJob.role || 'N/A'}</p>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <h3 className="text-lg font-semibold text-gray-800">Job Description</h3>
-//                       <p className="text-gray-600 mt-2">{selectedJob.description || 'No description available'}</p>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <h3 className="text-lg font-semibold text-gray-800">Job Responsibilities</h3>
-//                       <p className="text-gray-600 mt-2">
-//                         {selectedJob.responsibilities || 'No responsibilities listed'}
-//                       </p>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <h3 className="text-lg font-semibold text-gray-800">
-//                         Job Opening: {selectedJob.openings || 'N/A'}
-//                       </h3>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <h3 className="text-lg font-semibold text-gray-800">
-//                         Job Applicants: {selectedJob.applicants || 0}
-//                       </h3>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <h3 className="text-lg font-semibold text-gray-800">Job Requirements</h3>
-//                       <ul className="list-disc list-inside text-gray-700 mt-2 space-y-1">
-//                         {Array.isArray(selectedJob.requirements) && selectedJob.requirements.length > 0 ? (
-//                           selectedJob.requirements.map((req, index) => <li key={index}>{req}</li>)
-//                         ) : (
-//                           <li>No requirements listed</li>
-//                         )}
-//                       </ul>
-//                     </div>
-//                   </div>
-//                 </motion.div>
-//               </motion.div>
-//             )}
-//           </AnimatePresence>
-//         </div>
-//       </div>
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default SearchResults;
 
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -692,103 +85,104 @@ const SearchResults = () => {
     fetchSuggestedJobs();
   }, [searchParams, homeJobData]);
 
-  const sendOtp = async (jobId) => {
-    try {
-      const fullMobileNumber = `+91${mobileNumber}`;
-      const response = await axios.post(
-        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/Verifications`,
-        {
-          To: fullMobileNumber,
-          Channel: 'sms',
+const sendOtp = async (jobId) => {
+  try {
+    const fullMobileNumber = `+91${mobileNumber}`;
+    const response = await axios.post(
+      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/Verifications`,
+      {
+        To: fullMobileNumber,
+        Channel: 'sms',
+      },
+      {
+        auth: {
+          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
+          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
         },
-        {
-          auth: {
-            username: 'AC713f54788f5dc6ce1afefd57f597c187',
-            password: '8096997982696e76b52ab123b9e8eb73',
-          },
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          transformRequest: [(data) => {
-            const params = new URLSearchParams();
-            for (const key in data) {
-              params.append(key, data[key]);
-            }
-            return params;
-          }],
-        }
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        transformRequest: [(data) => {
+          const params = new URLSearchParams();
+          for (const key in data) {
+            params.append(key, data[key]);
+          }
+          return params;
+        }],
+      }
+    );
+
+    if (response.data.status === 'pending') {
+      setShowOtpPopup(true);
+      setCurrentJobId(jobId);
+      toast.info('OTP sent to your mobile number!');
+    } else {
+      throw new Error('Failed to send OTP');
+    }
+  } catch (err) {
+    console.error('Error sending OTP:', err);
+    toast.error('Failed to send OTP. Please try again.');
+  }
+};
+
+const verifyOtp = async () => {
+  try {
+    const fullMobileNumber = `+91${mobileNumber}`;
+    const response = await axios.post(
+      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/VerificationCheck`,
+      {
+        To: fullMobileNumber,
+        Code: otp,
+      },
+      {
+        auth: {
+          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
+          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        transformRequest: [(data) => {
+          const params = new URLSearchParams();
+          for (const key in data) {
+            params.append(key, data[key]);
+          }
+          return params;
+        }],
+      }
+    );
+
+    if (response.data.status === 'approved') {
+      await axios.post(
+        `http://localhost:5006/api/jobs/${currentJobId}/apply`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.status === 'pending') {
-        setShowOtpPopup(true);
-        setCurrentJobId(jobId);
-        toast.info('OTP sent to your mobile number!');
-      } else {
-        throw new Error('Failed to send OTP');
-      }
-    } catch (err) {
-      console.error('Error sending OTP:', err);
-      toast.error('Failed to send OTP. Please try again.');
-    }
-  };
-
-  const verifyOtp = async () => {
-    try {
-      const fullMobileNumber = `+91${mobileNumber}`;
-      const response = await axios.post(
-        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/VerificationCheck`,
-        {
-          To: fullMobileNumber,
-          Code: otp,
-        },
-        {
-          auth: {
-            username: 'AC713f54788f5dc6ce1afefd57f597c187',
-            password: '8096997982696e76b52ab123b9e8eb73',
-          },
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          transformRequest: [(data) => {
-            const params = new URLSearchParams();
-            for (const key in data) {
-              params.append(key, data[key]);
-            }
-            return params;
-          }],
-        }
+      toast.success('Applied successfully!');
+      setJobs((prevJobs) =>
+        prevJobs.map((job) =>
+          job.id === currentJobId ? { ...job, applicants: (job.applicants || 0) + 1 } : job
+        )
       );
 
-      if (response.data.status === 'approved') {
-        await axios.post(
-          `http://localhost:5006/api/jobs/${currentJobId}/apply`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+      setShowOtpPopup(false);
+      setOtp('');
+      setMobileNumber('');
+      setCurrentJobId(null);
 
-        toast.success('Applied successfully!');
-        setJobs((prevJobs) =>
-          prevJobs.map((job) =>
-            job.id === currentJobId ? { ...job, applicants: (job.applicants || 0) + 1 } : job
-          )
-        );
-
-        setShowOtpPopup(false);
-        setOtp('');
-        setMobileNumber('');
-        setCurrentJobId(null);
-
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-      } else {
-        setOtpError('Invalid OTP. Please try again.');
-      }
-    } catch (err) {
-      console.error('Error verifying OTP:', err);
-      setOtpError('Failed to verify OTP. Please try again.');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } else {
+      setOtpError('Invalid OTP. Please try again.');
     }
-  };
+  } catch (err) {
+    console.error('Error verifying OTP:', err);
+    setOtpError('Failed to verify OTP. Please try again.');
+  }
+};
+
 
   const handleApply = (jobId) => {
     setCurrentJobId(jobId);

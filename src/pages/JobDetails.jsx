@@ -141,103 +141,106 @@ const JobDetails = () => {
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   };
 
-  const sendOtp = async (jobId) => {
-    try {
-      const fullMobileNumber = `+91${mobileNumber}`; // Combine country code with entered number
-      const response = await axios.post(
-        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/Verifications`,
-        {
-          To: fullMobileNumber,
-          Channel: 'sms',
+ const sendOtp = async (jobId) => {
+  try {
+    const fullMobileNumber = `+91${mobileNumber}`;
+    const response = await axios.post(
+      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/Verifications`,
+      {
+        To: fullMobileNumber,
+        Channel: 'sms',
+      },
+      {
+        auth: {
+          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
+          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
         },
-        {
-          auth: {
-            username: 'AC713f54788f5dc6ce1afefd57f597c187',
-            password: '8096997982696e76b52ab123b9e8eb73',
-          },
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          transformRequest: [(data) => {
-            const params = new URLSearchParams();
-            for (const key in data) {
-              params.append(key, data[key]);
-            }
-            return params;
-          }],
-        }
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        transformRequest: [(data) => {
+          const params = new URLSearchParams();
+          for (const key in data) {
+            params.append(key, data[key]);
+          }
+          return params;
+        }],
+      }
+    );
+
+    if (response.data.status === 'pending') {
+      setShowOtpPopup(true);
+      setCurrentJobId(jobId);
+      toast.info('OTP sent to your mobile number!');
+    } else {
+      throw new Error('Failed to send OTP');
+    }
+  } catch (err) {
+    console.error('Error sending OTP:', err);
+    toast.error('Failed to send OTP. Please try again.');
+  }
+};
+
+
+ const verifyOtp = async () => {
+  try {
+    const fullMobileNumber = `+91${mobileNumber}`;
+
+    const response = await axios.post(
+      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/VerificationCheck`,
+      {
+        To: fullMobileNumber,
+        Code: otp,
+      },
+      {
+        auth: {
+          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
+          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        transformRequest: [(data) => {
+          const params = new URLSearchParams();
+          for (const key in data) {
+            params.append(key, data[key]);
+          }
+          return params;
+        }],
+      }
+    );
+
+    if (response.data.status === 'approved') {
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/jobs/${currentJobId}/apply`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.status === 'pending') {
-        setShowOtpPopup(true);
-        setCurrentJobId(jobId);
-        toast.info('OTP sent to your mobile number!');
-      } else {
-        throw new Error('Failed to send OTP');
-      }
-    } catch (err) {
-      console.error('Error sending OTP:', err);
-      toast.error('Failed to send OTP. Please try again.');
-    }
-  };
-
-  const verifyOtp = async () => {
-    try {
-      const fullMobileNumber = `+91${mobileNumber}`; // Use the same mobile number for verification
-      const response = await axios.post(
-        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/VerificationCheck`,
-        {
-          To: fullMobileNumber,
-          Code: otp,
-        },
-        {
-          auth: {
-            username: 'AC713f54788f5dc6ce1afefd57f597c187',
-            password: '8096997982696e76b52ab123b9e8eb73',
-          },
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          transformRequest: [(data) => {
-            const params = new URLSearchParams();
-            for (const key in data) {
-              params.append(key, data[key]);
-            }
-            return params;
-          }],
-        }
+      toast.success('Applied successfully!');
+      setJobs((prevJobs) =>
+        prevJobs.map((job) =>
+          job._id === currentJobId ? { ...job, applicants: (job.applicants || 0) + 1 } : job
+        )
       );
 
-      if (response.data.status === 'approved') {
-        await axios.post(
-          `http://localhost:5006/api/jobs/${currentJobId}/apply`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+      setShowOtpPopup(false);
+      setOtp('');
+      setMobileNumber('');
+      setCurrentJobId(null);
 
-        toast.success('Applied successfully!');
-        setJobs((prevJobs) =>
-          prevJobs.map((job) =>
-            job._id === currentJobId ? { ...job, applicants: (job.applicants || 0) + 1 } : job
-          )
-        );
-
-        setShowOtpPopup(false);
-        setOtp('');
-        setMobileNumber(''); // Reset mobile number
-        setCurrentJobId(null);
-
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-      } else {
-        setOtpError('Invalid OTP. Please try again.');
-      }
-    } catch (err) {
-      console.error('Error verifying OTP:', err);
-      setOtpError('Failed to verify OTP. Please try again.');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } else {
+      setOtpError('Invalid OTP. Please try again.');
     }
-  };
+  } catch (err) {
+    console.error('Error verifying OTP:', err);
+    setOtpError('Failed to verify OTP. Please try again.');
+  }
+};
+
 
   const handleApplyJob = (jobId) => {
     setCurrentJobId(jobId);
