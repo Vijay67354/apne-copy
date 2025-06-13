@@ -33,7 +33,7 @@ const SearchResults = () => {
   const [currentJobId, setCurrentJobId] = useState(null);
   const navigate = useNavigate();
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken';
+REACT_APP_JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeREACT_APP_JWT_TOKEN
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -89,15 +89,15 @@ const sendOtp = async (jobId) => {
   try {
     const fullMobileNumber = `+91${mobileNumber}`;
     const response = await axios.post(
-      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/Verifications`,
+      `https://verify.twilio.com/v2/Services/your_twilio_service_sid/Verifications`,
       {
         To: fullMobileNumber,
         Channel: 'sms',
       },
       {
         auth: {
-          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
-          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
+          username: 'your_twilio_account_sid',
+          password: 'your_twilio_auth_REACT_APP_JWT_TOKEN',
         },
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -111,20 +111,12 @@ const sendOtp = async (jobId) => {
         }],
       }
     );
-
-    if (response.data.status === 'pending') {
-      setShowOtpPopup(true);
-      setCurrentJobId(jobId);
-      toast.info('OTP sent to your mobile number!');
-    } else {
-      throw new Error('Failed to send OTP');
-    }
+    // Rest of the function
   } catch (err) {
     console.error('Error sending OTP:', err);
     toast.error('Failed to send OTP. Please try again.');
   }
 };
-
 const verifyOtp = async () => {
   try {
     const fullMobileNumber = `+91${mobileNumber}`;
@@ -137,7 +129,7 @@ const verifyOtp = async () => {
       {
         auth: {
           username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
-          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
+          password: process.env.REACT_APP_TWILIO_AUTH_REACT_APP_JWT_TOKEN,
         },
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -156,7 +148,7 @@ const verifyOtp = async () => {
       await axios.post(
         `http://localhost:5006/api/jobs/${currentJobId}/apply`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${REACT_APP_JWT_TOKEN}` } }
       );
 
       toast.success('Applied successfully!');

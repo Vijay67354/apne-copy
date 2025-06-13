@@ -40,8 +40,8 @@ const JobDetails = () => {
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken';
 
+REACT_APP_JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken
   useEffect(() => {
     let isMounted = true;
 
@@ -61,7 +61,7 @@ const JobDetails = () => {
         };
 
         const response = await axios.get('http://localhost:5006/api/jobs', {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${REACT_APP_JWT_TOKEN}` },
           params,
         });
 
@@ -193,7 +193,7 @@ const JobDetails = () => {
         Code: otp,
       },
       {
-        auth: {
+       auth: {
           username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
           password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
         },
@@ -214,7 +214,7 @@ const JobDetails = () => {
       await axios.post(
         `${process.env.REACT_APP_BACKEND_BASE_URL}/api/jobs/${currentJobId}/apply`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${REACT_APP_JWT_TOKEN}` } }
       );
 
       toast.success('Applied successfully!');
