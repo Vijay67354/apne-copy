@@ -40,8 +40,8 @@ const JobDetails = () => {
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
 
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken';
 
-REACT_APP_JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken
   useEffect(() => {
     let isMounted = true;
 
@@ -61,7 +61,7 @@ REACT_APP_JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV
         };
 
         const response = await axios.get('http://localhost:5006/api/jobs', {
-          headers: { Authorization: `Bearer ${REACT_APP_JWT_TOKEN}` },
+          headers: { Authorization: `Bearer ${token}` },
           params,
         });
 
@@ -214,7 +214,7 @@ REACT_APP_JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV
       await axios.post(
         `${process.env.REACT_APP_BACKEND_BASE_URL}/api/jobs/${currentJobId}/apply`,
         {},
-        { headers: { Authorization: `Bearer ${REACT_APP_JWT_TOKEN}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       toast.success('Applied successfully!');
