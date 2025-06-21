@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5006',
+        target: 'https://apne-copy.vercel.app',
         changeOrigin: true,
         secure: false,
       },
