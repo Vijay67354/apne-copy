@@ -120,8 +120,8 @@ const Testimonial = () => {
       </div>
 
     </div>
-    <div className='flex justify-center mx-auto mt-11 mb-11 pt-7 pb-7'>
-      <img src='/images/downloadapp.png'/>
+ <div className='flex h-[600px] justify-center mx-auto mt-11 mb-1 pt-7 pb-7'>
+      <img src='https://sdmntprwestus.oaiusercontent.com/files/00000000-8464-6230-b091-4b6906124d4b/raw?se=2025-06-21T13%3A04%3A42Z&sp=r&sv=2024-08-04&sr=b&scid=9827baa1-69f7-57ed-a292-fe9ffbe890fd&skoid=f71d6506-3cac-498e-b62a-67f9228033a9&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-20T17%3A27%3A23Z&ske=2025-06-21T17%3A27%3A23Z&sks=b&skv=2024-08-04&sig=lL1w0/5GU3pndEjLizbLm/YAttaxW1Za6bJ9KJzERAk%3D'  className='w-full  object-cover'/>
     </div>
 </div>
   );

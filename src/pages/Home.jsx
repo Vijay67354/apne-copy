@@ -1,6 +1,7 @@
 
 
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../component/Navbar';
@@ -10,7 +11,6 @@ import JobOpening from './JobOpening';
 import Testimonial from '../component/Testimonial';
 import Footer from '../component/Footer';
 import BotUIChat from '../component/BotUIChat';
-
 const Home = () => {
   const [designation, setDesignation] = useState('');
   const [experience, setExperience] = useState('');
@@ -19,6 +19,7 @@ const Home = () => {
   const [message, setMessage] = useState('');
 
   const navigate = useNavigate();
+  const { state } = useLocation(); // Access state from Dashboard
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -34,15 +35,19 @@ const Home = () => {
     setMessage(`Searching for: ${designation}, ${experience} years, ${location}`);
 
     try {
-      const response = await axios.get('http://localhost:5006/api/jobs/search', {
+      const response = await axios.get(`${API_BASE_URL}/api/jobs/search`, {
         params: { designation, experience, location },
       });
 
-      const filteredJobs = response.data; // This will already be filtered by the backend
+      const filteredJobs = response.data;
+      console.log('Fetched Jobs in Home:', filteredJobs);
+
+      // Pass both the filtered jobs, search params, and homeJobData (if available) to SearchResults
       navigate('/searchresults', {
         state: {
           filteredJobs,
           searchParams: { designation, experience, location },
+          homeJobData: state?.homeJobData || null, // Pass homeJobData from Dashboard
         },
       });
     } catch (error) {
@@ -52,6 +57,7 @@ const Home = () => {
     }
   };
 
+  // Rest of the Home component remains unchanged
   return (
     <div>
       <div style={{ background: 'linear-gradient(to bottom right, #f5f3ff, #fdf2f8, #eff6ff)' }}>

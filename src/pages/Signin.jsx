@@ -46,7 +46,7 @@ function Signin({ onClose, onSwitchToSignup }) {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post('http://localhost:5006/api/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/login`, {
         email: formData.email,
         password: formData.password,
       });
@@ -83,7 +83,7 @@ function Signin({ onClose, onSwitchToSignup }) {
 
       // Optionally, send user data to your backend for verification or storage
       try {
-        const response = await axios.post('http://localhost:5006/api/google-login', {
+        const response = await axios.post(`${API_BASE_URL}/api/google-login`, {
           email: userData.email,
           googleId: userData.googleId,
           name: userData.name,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,16 +30,15 @@ const JobDetails = () => {
   const [itemsPerPage] = useState(10);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  // State for OTP popup and verification
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState(null);
   const [currentJobId, setCurrentJobId] = useState(null);
-  // State for mobile number popup
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = import.meta.env.VITE_API_BASE_URL_TOKEN;
 
   useEffect(() => {
     let isMounted = true;
@@ -60,7 +58,7 @@ const JobDetails = () => {
           level: jobType === 'fresher' ? 'Junior' : undefined,
         };
 
-        const response = await axios.get('http://localhost:5006/api/jobs', {
+        const response = await axios.get(`${API_BASE_URL}/api/jobs`, {
           headers: { Authorization: `Bearer ${token}` },
           params,
         });
@@ -108,9 +106,14 @@ const JobDetails = () => {
     if (filters.datePosted === 'last3days' && diffDays > 3) return false;
     if (filters.datePosted === 'last7days' && diffDays > 7) return false;
 
-    const jobSalary = typeof job.salary === 'string'
-      ? parseFloat(job.salary.match(/([\d.]+)/)?.[1]) || 0
-      : job.salary || 0;
+    // Safely parse job.salary
+    let jobSalary = 0;
+    if (typeof job.salary === 'string') {
+      const match = job.salary.match(/([\d.]+)/); // Extract numeric part from string
+      jobSalary = match ? parseFloat(match[0]) : 0; // Use match[0] for full match
+    } else if (typeof job.salary === 'number') {
+      jobSalary = job.salary;
+    } // If null/undefined, jobSalary remains 0
     if (jobSalary < filters.salary) return false;
 
     if (filters.workMode.home && job.type !== 'Work from home') return false;
@@ -141,110 +144,107 @@ const JobDetails = () => {
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   };
 
- const sendOtp = async (jobId) => {
-  try {
-    const fullMobileNumber = `+91${mobileNumber}`;
-    const response = await axios.post(
-      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/Verifications`,
-      {
-        To: fullMobileNumber,
-        Channel: 'sms',
-      },
-      {
-        auth: {
-          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
-          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
+  const sendOtp = async (jobId) => {
+    try {
+      const fullMobileNumber = `+91${mobileNumber}`;
+      const response = await axios.post(
+        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/Verifications`,
+        {
+          To: fullMobileNumber,
+          Channel: 'sms',
         },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        transformRequest: [(data) => {
-          const params = new URLSearchParams();
-          for (const key in data) {
-            params.append(key, data[key]);
-          }
-          return params;
-        }],
-      }
-    );
-
-    if (response.data.status === 'pending') {
-      setShowOtpPopup(true);
-      setCurrentJobId(jobId);
-      toast.info('OTP sent to your mobile number!');
-    } else {
-      throw new Error('Failed to send OTP');
-    }
-  } catch (err) {
-    console.error('Error sending OTP:', err);
-    toast.error('Failed to send OTP. Please try again.');
-  }
-};
-
-
- const verifyOtp = async () => {
-  try {
-    const fullMobileNumber = `+91${mobileNumber}`;
-
-    const response = await axios.post(
-      `https://verify.twilio.com/v2/Services/${process.env.REACT_APP_TWILIO_SERVICE_SID}/VerificationCheck`,
-      {
-        To: fullMobileNumber,
-        Code: otp,
-      },
-      {
-       auth: {
-          username: process.env.REACT_APP_TWILIO_ACCOUNT_SID,
-          password: process.env.REACT_APP_TWILIO_AUTH_TOKEN,
-        },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        transformRequest: [(data) => {
-          const params = new URLSearchParams();
-          for (const key in data) {
-            params.append(key, data[key]);
-          }
-          return params;
-        }],
-      }
-    );
-
-    if (response.data.status === 'approved') {
-      await axios.post(
-        `${process.env.REACT_APP_BACKEND_BASE_URL}/api/jobs/${currentJobId}/apply`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          auth: {
+            username: 'AC713f54788f5dc6ce1afefd57f597c187',
+            password: '8096997982696e76b52ab123b9e8eb73',
+          },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          transformRequest: [(data) => {
+            const params = new URLSearchParams();
+            for (const key in data) {
+              params.append(key, data[key]);
+            }
+            return params;
+          }],
+        }
       );
 
-      toast.success('Applied successfully!');
-      setJobs((prevJobs) =>
-        prevJobs.map((job) =>
-          job._id === currentJobId ? { ...job, applicants: (job.applicants || 0) + 1 } : job
-        )
+      if (response.data.status === 'pending') {
+        setShowOtpPopup(true);
+        setCurrentJobId(jobId);
+        toast.info('OTP sent to your mobile number!');
+      } else {
+        throw new Error('Failed to send OTP');
+      }
+    } catch (err) {
+      console.error('Error sending OTP:', err);
+      toast.error('Failed to send OTP. Please try again.');
+    }
+  };
+
+  const verifyOtp = async () => {
+    try {
+      const fullMobileNumber = `+91${mobileNumber}`;
+      const response = await axios.post(
+        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/VerificationCheck`,
+        {
+          To: fullMobileNumber,
+          Code: otp,
+        },
+        {
+          auth: {
+            username: 'AC713f54788f5dc6ce1afefd57f597c187',
+            password: '8096997982696e76b52ab123b9e8eb73',
+          },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          transformRequest: [(data) => {
+            const params = new URLSearchParams();
+            for (const key in data) {
+              params.append(key, data[key]);
+            }
+            return params;
+          }],
+        }
       );
 
-      setShowOtpPopup(false);
-      setOtp('');
-      setMobileNumber('');
-      setCurrentJobId(null);
+      if (response.data.status === 'approved') {
+        await axios.post(
+          `http://localhost:5006/api/jobs/${currentJobId}/apply`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
-    } else {
-      setOtpError('Invalid OTP. Please try again.');
+        toast.success('Applied successfully!');
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job._id === currentJobId ? { ...job, applicants: (job.applicants || 0) + 1 } : job
+          )
+        );
+
+        setShowOtpPopup(false);
+        setOtp('');
+        setMobileNumber('');
+        setCurrentJobId(null);
+
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      } else {
+        setOtpError('Invalid OTP. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error verifying OTP:', err);
+      setOtpError('Failed to verify OTP. Please try again.');
     }
-  } catch (err) {
-    console.error('Error verifying OTP:', err);
-    setOtpError('Failed to verify OTP. Please try again.');
-  }
-};
-
+  };
 
   const handleApplyJob = (jobId) => {
     setCurrentJobId(jobId);
-    setShowMobilePopup(true); // Show mobile number popup first
+    setShowMobilePopup(true);
   };
 
   const handleMobileNext = () => {
@@ -253,7 +253,7 @@ const JobDetails = () => {
       return;
     }
     setShowMobilePopup(false);
-    sendOtp(currentJobId); // Proceed to OTP flow
+    sendOtp(currentJobId);
   };
 
   if (isLoading) {
@@ -283,7 +283,7 @@ const JobDetails = () => {
   return (
     <div className="w-full mx-auto max-w-[1250px] p-4">
       <Link to="/">
-        <img src='/images/right-arrow.png' className='w-4 h-4 mt-4 mb-3 rotate-[90deg]' />
+        <img src='/images/right-arrow.png' className='w-4 h-4 mt-4 mb-3 rotate-[90deg]' alt="Back to home" />
       </Link>
 
       <div>
@@ -578,7 +578,9 @@ const JobDetails = () => {
                       </svg>
                       {selectedJob.location || 'N/A'}
                     </span>
-                    <span>₹{selectedJob.salary || 'N/A'} Lakhs P.A.</span>
+                    <span>
+                      ₹{(typeof selectedJob.salary === 'string' || typeof selectedJob.salary === 'number' ? selectedJob.salary : 'N/A')} Lakhs P.A.
+                    </span>
                   </div>
                 </div>
                 <button
@@ -596,12 +598,14 @@ const JobDetails = () => {
                 <div className="flex justify-between mb-2">
                   <div>
                     <p className="text-gray-600 text-sm">Fixed</p>
-                    <p className="font-semibold">₹{selectedJob.salary || 'N/A'} Lakhs P.A.</p>
+                    <p className="font-semibold">
+                      ₹{(typeof selectedJob.salary === 'string' || typeof selectedJob.salary === 'number' ? selectedJob.salary : 'N/A')} Lakhs P.A.
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm">Earning Potential</p>
                     <p className="font-semibold">
-                      ₹{(selectedJob.salary ? parseFloat(selectedJob.salary) + 0.5 : 'N/A')} Lakhs P.A.
+                      ₹{(typeof selectedJob.salary === 'number' ? selectedJob.salary + 0.5 : parseFloat(selectedJob.salary) + 0.5 || 'N/A')} Lakhs P.A.
                     </p>
                   </div>
                 </div>
@@ -760,7 +764,6 @@ const JobDetails = () => {
         )}
       </AnimatePresence>
 
-      {/* Mobile Number Popup */}
       <AnimatePresence>
         {showMobilePopup && (
           <motion.div

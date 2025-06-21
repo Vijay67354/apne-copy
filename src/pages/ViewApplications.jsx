@@ -18,6 +18,7 @@ const ViewApplications = () => {
       try {
         setIsLoading(true);
         const jobsResponse = await fetch(`http://localhost:5006/api/jobs/${user._id}`);
+        
         if (!jobsResponse.ok) throw new Error('Failed to fetch jobs');
         const jobs = await jobsResponse.json();
 

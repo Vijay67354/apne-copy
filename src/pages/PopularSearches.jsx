@@ -16,7 +16,7 @@
       const fetchJobCounts = async () => {
         try {
           // Fetch fresher jobs count
-          const fresherResponse = await axios.get('http://localhost:5006/api/jobs', {
+          const fresherResponse = await axios.get(`${API_BASE_URL}/api/jobs`, {
             params: { level: 'Junior', experience: '0 years' },
           });
           if (fresherResponse.data.success) {
@@ -24,7 +24,7 @@
           }
 
           // Fetch work from home jobs count
-          const wfhResponse = await axios.get('http://localhost:5006/api/jobs', {
+          const wfhResponse = await axios.get(`${API_BASE_URL}/api/jobs`, {
             params: { type: 'Work from home' },
           });
           if (wfhResponse.data.success) {
@@ -117,7 +117,7 @@
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           <div className="lg:col-span-1">
             <h2 className="mb-0 text-[32px] font-semibold leading-[48px] text-black md:text-left md:text-[66px] md:leading-[67px] Inter">
-              Popular Searches on Apna
+              Popular Searches on NextHire
             </h2>
           </div>
 

@@ -29,6 +29,8 @@ import Dashboard from './pages/Dashboard';
 import CategoryJobs from './pages/CategoryJobs';
 import JobDetails from './pages/JobDetails.jsx';
 import JobOpeningDetail from './pages/JobOpeningDetail.jsx';
+import PrivacyPolicy from './component/PrivacyPolicy.jsx';
+
 const App = () => {
   const handleLoginSuccess = (userData) => {
     localStorage.setItem('user', JSON.stringify(userData));
@@ -46,8 +48,8 @@ const App = () => {
           <Route path="/addjob" element={<AddJob />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/managejobs" element={<ManageJobs />} />
-           <Route path="/jobopeningdetail" element={<JobOpeningDetail />} />
-      <Route path="/jobdetails" element={<JobDetails />} /> 
+          <Route path="/jobopeningdetail" element={<JobOpeningDetail />} />
+          <Route path="/jobdetails" element={<JobDetails />} />
 
           <Route path="/viewapplications" element={<ViewApplications />} />
           <Route path="/profile" element={<Profile />} />
@@ -59,6 +61,8 @@ const App = () => {
           <Route path="/searchresults" element={<SearchResults />} />
           <Route path="/jobopening" element={<JobOpening />} />
           <Route path="/testimonial" element={<Testimonial />} />
+          <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+
           <Route path="/popularsearches" element={<PopularSearches />} />
           <Route path="/otpverification" element={<OtpVerification />} />
           <Route path="/jobs/:category" element={<CategoryJobs />} />

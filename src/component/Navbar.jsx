@@ -118,24 +118,17 @@ const Navbar = () => {
             {/* <Link to="/jobs" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
                 Jobs
               </Link>
-              <Link to="/job-prep" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                Job Prep
-              </Link>
-              <Link to="/contests" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                Contests
-              </Link>
-              <Link to="/degree" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                Degree
-              </Link>
-              <Link to="/resume-tools" className="text-gray-700 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">
-                Resume Tools
-              </Link> */}
+             */}
           </div>
           <div>
-            <Link to="/candidatelogin" className="text-[#1f8268] ml-[500px] text-lg font-medium hover:underline">
+            <Link
+              to="/candidatelogin"
+              className="text-[#1f8268] ml-[500px] text-lg font-medium hover:underline active:text-green-600 active:font-bold"
+            >
               Employer Login
             </Link>
           </div>
+
           {/* Profile and Login - Desktop */}
           <div className="hidden md:flex items-center space-x-4 relative">
             {user ? (
@@ -155,9 +148,6 @@ const Navbar = () => {
                     }
                     alt="Profile"
                   />
-
-
-
                   <span className="text-gray-800 text-lg font-medium">{user.name}</span>
                   <ChevronDown className="h-4 w-4 text-gray-500" />
                 </button>

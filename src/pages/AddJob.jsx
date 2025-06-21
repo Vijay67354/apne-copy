@@ -70,7 +70,7 @@ const handleSubmit = async (e) => {
 
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.post('http://localhost:5006/api/jobs', {
+    const response = await axios.post(`${API_BASE_URL}/api/jobs`, {
       ...jobData,
       postedBy: user._id,
     }, {
