@@ -39,7 +39,7 @@ const JobDetails = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = import.meta.env.VITE_API_BASE_URL_TOKEN;
-
+const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
   useEffect(() => {
     let isMounted = true;
 
@@ -145,14 +145,14 @@ const JobDetails = () => {
   };
 
   const sendOtp = async (jobId) => {
-    try {
-      const fullMobileNumber = `+91${mobileNumber}`;
-      const response = await axios.post(
-        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/Verifications`,
-        {
-          To: fullMobileNumber,
-          Channel: 'sms',
-        },
+  try {
+  const fullMobileNumber = `+91${mobileNumber}`;
+  const response = await axios.post(
+    `https://verify.twilio.com/v2/Services/${Account}/Verifications`,
+    {
+      To: fullMobileNumber,
+      Channel: 'sms',
+    },
         {
           auth: {
             username: 'AC713f54788f5dc6ce1afefd57f597c187',
