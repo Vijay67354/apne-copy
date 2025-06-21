@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,10 +38,8 @@ const JobDetails = () => {
   const [currentJobId, setCurrentJobId] = useState(null);
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const token = import.meta.env.VITE_API_BASE_URL_TOKEN;
-const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
+  const API_BASE_URL = "http://localhost:5006"
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ4ODkwMjYwfQ.fakeToken"
   useEffect(() => {
     let isMounted = true;
 
@@ -58,8 +58,8 @@ const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
           level: jobType === 'fresher' ? 'Junior' : undefined,
         };
 
-        const response = await axios.get(`${API_BASE_URL}/api/jobs`, {
-          headers: { Authorization: `Bearer ${token}` },
+    const response = await axios.get(`${API_BASE_URL}/api/jobs`, {
+      headers: { Authorization: `Bearer ${token}` },
           params,
         });
 
@@ -145,14 +145,14 @@ const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
   };
 
   const sendOtp = async (jobId) => {
-  try {
-  const fullMobileNumber = `+91${mobileNumber}`;
-  const response = await axios.post(
-    `https://verify.twilio.com/v2/Services/${Account}/Verifications`,
-    {
-      To: fullMobileNumber,
-      Channel: 'sms',
-    },
+    try {
+      const fullMobileNumber = `+91${mobileNumber}`;
+      const response = await axios.post(
+        `https://verify.twilio.com/v2/Services/VA9e7eb44ca5629ed4e7c1100e21dda1a5/Verifications`,
+        {
+          To: fullMobileNumber,
+          Channel: 'sms',
+        },
         {
           auth: {
             username: 'AC713f54788f5dc6ce1afefd57f597c187',
@@ -443,7 +443,7 @@ const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
                         {job.location || 'N/A'}
                       </span>
                       <span>₹{job.salary || 'N/A'} Lakhs P.A.</span>
-                      <span className="flex items-center gap-1">
+                      <span className什="flex items-center gap-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
@@ -476,9 +476,8 @@ const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`px-3 py-1 rounded-md ${
-                      currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
+                    className={`px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
                     aria-label="Previous page"
                   >
                     Previous
@@ -494,9 +493,8 @@ const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-3 py-1 rounded-md ${
-                          currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
+                        className={`px-3 py-1 rounded-md ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
                         aria-label={`Page ${page}`}
                       >
                         {page}
@@ -507,11 +505,10 @@ const Account=import.meta.env.VITE_API_BASE_URL_TWILLIO;
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`px-3 py-1 rounded-md ${
-                      currentPage === totalPages
+                    className={`px-3 py-1 rounded-md ${currentPage === totalPages
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
+                      }`}
                     aria-label="Next page"
                   >
                     Next

@@ -7,6 +7,8 @@
   import { ChevronLeft, ChevronRight } from 'lucide-react';
   import Navbar from '../component/Navbar';
   import { Link } from 'react-router-dom';
+// Define API_BASE_URL using Vite's environment variable
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const Dashboard = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -1363,3 +1365,4 @@
   };
 
   export default Dashboard;
+

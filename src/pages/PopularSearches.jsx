@@ -4,7 +4,7 @@
   import { ChevronRight } from 'lucide-react';
   import { useLocation, useNavigate } from 'react-router-dom';
   import axios from 'axios';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   function PopularSearches() {
     const location = useLocation();
     const navigate = useNavigate();
