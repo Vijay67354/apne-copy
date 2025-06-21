@@ -17,13 +17,13 @@ const JobList = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
         setError('');
-        const response = await axios.get(`${API_BASE_URL}/api/jobs`);
+        const response = await axios.get(`${VITE_API_BASE_URL}/api/jobs`);
         setJobs(response.data || []);
       } catch (err) {
         console.error('Error fetching jobs:', err);
