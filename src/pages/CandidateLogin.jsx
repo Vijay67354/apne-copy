@@ -10,14 +10,14 @@ const CandidateLogin = ({ onClose, onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/candidatelogin`, {
+      const response = await fetch(`${VITE_API_BASE_URL}/api/candidatelogin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
